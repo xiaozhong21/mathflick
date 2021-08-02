@@ -114,13 +114,11 @@ a:hover {
     display: grid;
     margin-left: auto;
     margin-right: auto;
-    /* border: 3px solid black; */
     width: 850px;
     justify-content: center;
     align-items: center;
     color:rgb(216, 216, 216);
     text-shadow: 0 0 10px white;
-    /* background-color:rgb(158, 158, 158); */
     background-image: url(Space.png);
     background-size: 200%;
     background-position: 1275px -7px;
@@ -128,6 +126,7 @@ a:hover {
     "title title"
     "timer score"
     "summary summary"
+    "scorehistory scorehistory"
     "flick flick"
     "resetgame highscore";
     grid-auto-columns: 50%;
@@ -145,8 +144,6 @@ a:hover {
 }
 #MFIMG{
     width:200px;
-    
-
 }
 
 #score{
@@ -154,7 +151,7 @@ a:hover {
     margin-left: auto;
     margin-right: auto;
     width: 75%;
-    height:50px;
+    height: 50px;
     border: 3px solid rgb(216, 216, 216);;
     display: flex;
     justify-content: center;
@@ -167,7 +164,7 @@ a:hover {
     margin-left: auto;
     margin-right: auto;
     width: 75%;
-    height:50px;
+    height: 50px;
     border: 3px solid rgb(216, 216, 216);;
     display: flex;
     justify-content: center;
@@ -177,6 +174,14 @@ a:hover {
 
 #score-summary {
     grid-area: summary;
+    margin: 40px auto;
+    width:100%;
+    height:50px;
+    font-size: 25px;
+}
+
+#highScore-history {
+    grid-area: scorehistory;
     margin: 40px auto;
     width:100%;
     height:50px;
@@ -214,21 +219,30 @@ a:hover {
     font-size: 25px;
 }
 
+#highScore:hover {
+    cursor: pointer;
+    background-color: #A956A2;
+}
+
 .flickboard-display {
     grid-area: flick;
     margin-left: auto;
     margin-right: auto;
-    /* background-color: #6ccfd8; */
-    display: flex;
+    display: grid;
     width: 800px;
     height:800px;
-    /* border: 3px solid black; */
-    flex-wrap: wrap;
-    justify-content: space-evenly;
+    justify-content: center;
     align-items: center;
-    border-radius: 50%;
+    /* border-radius: 50%; */
     font-size: 50px;
-    animation: rotation 60s infinite linear
+    animation: rotation 60s infinite linear;
+    grid-template: 
+    "box8 box1 box2"
+    "box7 equa box3"
+    "box6 box5 box4";
+    place-items: center;
+    border-radius: 50%;
+    gap: 6%;
 }
 
 .flickboard-hidden {
@@ -238,72 +252,87 @@ a:hover {
 .summary-display {
     display: block;
     text-align: center;
-    padding-top: 200px;
-    padding-bottom: 470px;
+    padding-top: 100px;
+    padding-bottom: 570px;
+    background-color: black;
 }
 
 .summary-hidden {
     display: none;
 }
 
-.score-message {
-    font-size: 24px;
+
+.highScoreHistory-display {
+    display: block;
     text-align: center;
+    padding-top: 70px;
+    padding-bottom: 600px;
+    background-color: black;
+}
+
+.highScoreHistory-hidden {
+    display: none;
 }
 
 #box8{
-    width: 25%;
-    height: 25%;
-    margin: 70px -50px -70px 50px;
+    width: 200px;
+    height: 200px;
+    grid-area: box8;
+    margin: 70px -45px -70px 45px;
 }
 
 #box1{
-    width: 25%;
-    height: 25%;
-    margin: -20px 0 20px 0;
-
+    width: 200px;
+    height: 200px;
+    grid-area: box1;
+    margin: -14px 0 14px 0;
 }
 
 #box2{
-    width: 25%;
-    height: 25%;
-    margin: 70px 50px -70px -50px;
+    width: 200px;
+    height: 200px;
+    grid-area: box2;
+    margin: 70px 45px -70px -45px;
 }
 
 #box7{
-    width: 25%;
-    height: 25%;
-    margin: 0px 35px 0px -35px; 
+    width: 200px;
+    height: 200px;
+    grid-area: box7;
+    margin: 0px 45px 0px -45px; 
 }
 
 #box3{
-    width: 25%;
-    height: 25%;
-    margin: 0px -35px 0px 35px; 
+    width: 200px;
+    height: 200px;
+    grid-area: box3;
+    margin: 0px -45px 0px 45px; 
 }
 
 #box6{
-    width: 25%;
-    height: 25%;
-    margin: -70px -50px 70px 50px;
+    width: 200px;
+    height: 200px;
+    grid-area: box6;
+    margin: -70px -45px 70px 45px;
 }
 
 #box5{
-    width: 25%;
-    height: 25%;
-    margin: 20px 0 -20px 0;
+    width: 200px;
+    height: 200px;
+    grid-area: box5;
+    margin: 14px 0 -14px 0;
 }
 
 #box4{
-    width: 25%;
-    height: 25%;
-    margin: -70px 50px 70px -50px;
+    width: 200px;
+    height: 200px;
+    grid-area: box4;
+    margin: -70px 45px 70px -45px;
 }
 
 #equation{
-    width: 25%;
-    height: 25%;
-    border: 3px solid black;
+    width: 200px;
+    height: 200px;
     border-radius: 50%;
     display: flex;
     justify-content: center;
@@ -311,14 +340,13 @@ a:hover {
     align-items: center;
     color:white;
     text-shadow: 0 0 3px black, 0 0 3px black, 0 0 3px black;
-    /* background-color: rgb(255, 255, 255); */
     animation: rotationBackwards 60s infinite linear;
     box-shadow : 0 0 30px white;
     font-family: 'Ubuntu', sans-serif;
+    grid-area: equa;
 }
 
 .target{
-    /* background-color: #f4ff81; */
     font-family: 'Ubuntu', sans-serif;
     text-align: center;
     border-radius: 50%;
@@ -332,7 +360,7 @@ a:hover {
 }
 
 
-#comboMeter {
+.comboMeter-display {
     position:absolute;
     width:5%;
     text-align:center;
@@ -343,20 +371,36 @@ a:hover {
     z-index: 1;
 }
 
+.comboMeter-hidden {
+    display: none;
+}
+
 @keyframes rotation {
     from{
         transform: rotate(0deg);
+        -ms-transform: rotate(0deg);
+        -webkit-transform: rotate(0deg);
+        -moz-transform: rotate(0deg);
     }
     to {
         transform: rotate(359deg);
+        -ms-transform: rotate(359deg);
+        -webkit-transform: rotate(359deg);
+        -moz-transform: rotate(359deg);
     }
 }
 
 @keyframes rotationBackwards {
     from{
         transform: rotate(0deg);
+        -ms-transform: rotate(0deg);
+        -webkit-transform: rotate(0deg);
+        -moz-transform: rotate(0deg);
     }
     to {
         transform: rotate(-359deg);
+        -ms-transform: rotate(-359deg);
+        -webkit-transform: rotate(-359deg);
+        -moz-transform: rotate(-359deg);
     }
 }
