@@ -7,6 +7,8 @@ const box3 = document.querySelector("#box3");
 const box2 = document.querySelector("#box2");
 const box1 = document.querySelector("#box1");
 const equationBox = document.querySelector("#equation");
+// let equationBox;
+// let box1;
 const targets = document.getElementsByClassName("target");
 const timer = document.querySelector(`#timer`);
 const scoreboard = document.querySelector(`#score`);
@@ -20,10 +22,6 @@ const viewportWidth = Math.max(document.documentElement.clientWidth || 0, window
 
 
 let highScore = localStorage.getItem('HS');
-// if (highScoreArray.length > 0) {
-//   highScoreArray
-// }
-
 let highScoreArray = [];
 let gameState = "";
 let equation = 1;
@@ -34,31 +32,40 @@ let combo = 0;
 let a;
 let b;
 let score = 0;
+let numCorrect = 0;
+let numWrong = 0;
 
 let interval; //time interval
 let gameTime = 0;
+let constantGameTime;
 
 let targetArray = [1,2,3,4,5,6,7,8]; //targets start value
 
 let indicatorEq;
+let indicatorT;
+let indicatorTargets;
 let blinkingState = true;
 
 preGame();//will present `hover to start` screen
 
 //pre game vvvv
 function preGame(){
+  // box1 = document.createElement("div");
+  // box1.textContent = 1;
+  // box1.setAttribute("id", "box1");
+  // box1.setAttribute("class", "target");
+  // flickboard.appendChild(box1);
+
+  // equationBox = document.createElement("div");
+  // equationBox.textContent = "equation";
+  // equationBox.setAttribute("id", "equation");
+  // flickboard.appendChild(equationBox);
+  // console.log(equationBox);
+
     solved = true;
     gameState = "pregame";
     setHighScore();
     reset();
-    resetButton.addEventListener(`click`, function() {
-      preGame();
-      flickboard.className = "flickboard-display";
-      comboMeter.className = "comboMeter-display";
-      scoreSummary.className = "summary-hidden";
-      highScoreHistory.className = "highScoreHistory-hidden";
-      resetButton.textContent = "Reset Game";
-    });
     box1.innerHTML = ``;
     box2.innerHTML = ``;
     box3.innerHTML = ``;
@@ -75,6 +82,11 @@ function preGame(){
     box6.removeEventListener(`mouseover`, box6Colors);
     box7.removeEventListener(`mouseover`, box7Colors);
     box8.removeEventListener(`mouseover`, box8Colors);
+    equationBox.style.animation = 'rotationBackwards 60s infinite linear';
+    flickboard.style.animation = 'rotation 60s infinite linear';
+    for (let target of targets) {
+      target.style.animation = 'rotationBackwards 60s infinite linear';
+    }
     equationBox.removeEventListener("mouseout", alertRed); //there was a bug with the mouseout when the game resets, this fixes it
     equationBox.style.background = "";
     if (viewportWidth <= 768) {
@@ -87,11 +99,37 @@ function preGame(){
     timer.innerHTML = `Time: ` + gameTime;
 }
 
+resetButton.addEventListener(`click`, function() {
+  equationBox.style.animation = 'none';
+  equationBox.offsetHeight; /* trigger reflow */
+  equationBox.style.animation = null; 
+  equationBox.style.animation = 'rotationBackwards 60s infinite linear';
+  flickboard.style.animation = 'none';
+  flickboard.offsetHeight; /* trigger reflow */
+  flickboard.style.animation = null;
+  flickboard.style.animation = 'rotation 60s infinite linear';
+  for (let target of targets) {
+    target.style.animation = 'none';
+    target.offsetHeight;
+    target.style.animation = null;
+    target.style.animation = 'rotationBackwards 60s infinite linear';
+  }
+
+  // flickboard.innerHTML = "";
+  preGame();
+  flickboard.className = "flickboard-display";
+  comboMeter.className = "comboMeter-display";
+  scoreSummary.className = "summary-hidden";
+  highScoreHistory.className = "highScoreHistory-hidden";
+  resetButton.textContent = "Reset Game";
+});
+
 //play the game, start countdown vvvv
 function playGame(){
   equationBox.removeEventListener(`mouseover`, playGame);
   equationBox.addEventListener("mouseout", alertRed);
-  gameTime = 3; //debugging
+  gameTime = 15; //debugging
+  constantGameTime = gameTime;
   gameState = "playgame";
   assignColors();
   assignMouseout();
@@ -119,8 +157,19 @@ function countdown(){
           highScoreHistory.className = "highScoreHistory-hidden";
           comboMeter.className = "comboMeter-hidden";
           scoreSummary.className = "summary-display";
-          scoreSummary.innerHTML = `Game Over! <br> Your Score: ` + score + `<br> Your accuracy: ` + `<br> Average time to answer: `;
+          scoreSummary.innerHTML = `Game Over! <br>Score: ${score} <br>Accuracy: ${Math.round(numCorrect / (numCorrect + numWrong) * 100)}% <br>Speed: ${Math.round(constantGameTime / (numCorrect + numWrong) * 10) / 10} seconds/question`;
           resetButton.textContent = "New Game";
+          equationBox.style.animation = 'none';
+          equationBox.offsetHeight; /* trigger reflow */
+          equationBox.style.animation = null; 
+          flickboard.style.animation = 'none';
+          flickboard.offsetHeight; /* trigger reflow */
+          flickboard.style.animation = null;      
+          for (let target of targets) {
+            target.style.animation = 'none';
+            target.offsetHeight;
+            target.style.animation = null;
+          }
         }
         setHighScore();
         preGame();
@@ -134,6 +183,10 @@ function reset(){
   round = 1;
   roundCheck = 0;
   combo = 0;
+  numCorrect = 0;
+  numWrong = 0;
+  document.getElementById('comboMeter').innerHTML = "";  
+
 }
 
 //High score vvvv
@@ -146,7 +199,7 @@ function setHighScore(){
       "Time": new Date()
     });
     if (gameTime === 0) {
-      scoreSummary.innerHTML = `You have the new high score!<br>High score: ` + score;
+      scoreSummary.innerHTML = `You have the new high score!<br> Score: ${score} <br> Accuracy: ${Math.round(numCorrect / (numCorrect + numWrong) * 100)}% <br> Speed: ${Math.round(constantGameTime / (numCorrect + numWrong) * 10) / 10} seconds/question`;
     }
   }
   highScoreBox.innerHTML = "High Score: " + highScore; 
@@ -171,20 +224,21 @@ highScoreBox.addEventListener("click", function() {
 
 // event listeners for mouseover listener vvvv
 function assignColors(){
-box1.addEventListener("mouseover", box1Colors);
-box2.addEventListener("mouseover", box2Colors);
-box3.addEventListener("mouseover", box3Colors);
-box4.addEventListener("mouseover", box4Colors);
-box5.addEventListener("mouseover", box5Colors);
-box6.addEventListener("mouseover", box6Colors);
-box7.addEventListener("mouseover", box7Colors);
-box8.addEventListener("mouseover", box8Colors);
+  box1.addEventListener("mouseover", box1Colors);
+  box2.addEventListener("mouseover", box2Colors);
+  box3.addEventListener("mouseover", box3Colors);
+  box4.addEventListener("mouseover", box4Colors);
+  box5.addEventListener("mouseover", box5Colors);
+  box6.addEventListener("mouseover", box6Colors);
+  box7.addEventListener("mouseover", box7Colors);
+  box8.addEventListener("mouseover", box8Colors);
 }
 
 function box1Colors(){
   if (equation == targetArray[0]) {  
     box1.style.background = "green";
     addPoint();
+    numCorrect++;
     equationBox.style.background = "rgba(0,225,0,0.2)";
     indicatorEq = setInterval(indicatorEquation, 500);
     return solved = true;
@@ -193,6 +247,7 @@ function box1Colors(){
   else {
     box1.style.background = "red";
     minusPoint();
+    numWrong++;
     comboReset();
     return solved = false; 
   }
@@ -202,6 +257,7 @@ function box2Colors(){
   if (equation == targetArray[1]) {  
     box2.style.background = "green";
     addPoint();
+    numCorrect++;
     equationBox.style.background = "rgba(0,225,0,0.2)";
     indicatorEq = setInterval(indicatorEquation, 500);
     return solved = true;
@@ -210,6 +266,7 @@ function box2Colors(){
   else {
     box2.style.background = "red";
     minusPoint();
+    numWrong++;
     comboReset();
     return solved = false; 
   }
@@ -219,6 +276,7 @@ function box3Colors(){
   if (equation == targetArray[2]) {  
     box3.style.background = "green";
     addPoint();
+    numCorrect++;
     equationBox.style.background = "rgba(0,225,0,0.2)";
     indicatorEq = setInterval(indicatorEquation, 500);
     return solved = true;
@@ -226,6 +284,7 @@ function box3Colors(){
   else {
     box3.style.background = "red";
     minusPoint();
+    numWrong++;
     comboReset();
     return solved = false; 
   }
@@ -235,6 +294,7 @@ function box4Colors(){
   if (equation == targetArray[3]) {  
     box4.style.background = "green";
     addPoint();
+    numCorrect++;
     equationBox.style.background = "rgba(0,225,0,0.2)";
     indicatorEq = setInterval(indicatorEquation, 500);
     return solved = true;
@@ -242,6 +302,7 @@ function box4Colors(){
   else {
     box4.style.background = "red";
     minusPoint();
+    numWrong++;
     comboReset();
     return solved = false; 
   }
@@ -251,6 +312,7 @@ function box5Colors(){
   if (equation == targetArray[4]) {  
     box5.style.background = "green";
     addPoint();
+    numCorrect++;
     equationBox.style.background = "rgba(0,225,0,0.2)";
     indicatorEq = setInterval(indicatorEquation, 500);
     return solved = true;
@@ -258,6 +320,7 @@ function box5Colors(){
   else {
     box5.style.background = "red";
     minusPoint();
+    numWrong++;
     comboReset();
     return solved = false; 
   }
@@ -267,6 +330,7 @@ function box6Colors(){
   if (equation == targetArray[5]) {  
     box6.style.background = "green";
     addPoint();
+    numCorrect++;
     equationBox.style.background = "rgba(0,225,0,0.2)";
     indicatorEq = setInterval(indicatorEquation, 500);
     return solved = true;
@@ -274,6 +338,7 @@ function box6Colors(){
   else {
     box6.style.background = "red";
     minusPoint();
+    numWrong++;
     comboReset();
     return solved = false; 
   }
@@ -283,6 +348,7 @@ function box7Colors(){
   if (equation == targetArray[6]) {  
     box7.style.background = "green";
     addPoint();
+    numCorrect++;
     equationBox.style.background = "rgba(0,225,0,0.2)";
     indicatorEq = setInterval(indicatorEquation, 500);
     return solved = true;
@@ -290,6 +356,7 @@ function box7Colors(){
   else {
     box7.style.background = "red";
     minusPoint();
+    numWrong++;
     comboReset();
     return solved = false; 
   }
@@ -299,6 +366,7 @@ function box8Colors(){
   if (equation == targetArray[7]) {  
     box8.style.background = "green";
     addPoint();
+    numCorrect++;
     equationBox.style.background = "rgba(0,225,0,0.2)";
     indicatorEq = setInterval(indicatorEquation, 500);
     return solved = true;
@@ -306,6 +374,7 @@ function box8Colors(){
   else {
     box8.style.background = "red";
     minusPoint();
+    numWrong++;
     comboReset();
     return solved = false; 
   }
@@ -402,7 +471,6 @@ if (solved == true) {
     equationBox.style.background = "rgba(225,0,0,0.5)";
     // difficulty();
     indicatorT = setInterval(indicatorTargets,500);
-    
   }
 });
   
@@ -440,8 +508,13 @@ function getEquation() {
 function comboChain() {
     if (solved == true) {
         combo++;
-        document.getElementById('comboMeter').innerHTML = "x" + combo;
-        document.getElementById('comboMeter').style.fontSize = `${10 * (1 + (combo/10))}px`;
+        if (combo == 1){
+          document.getElementById('comboMeter').innerHTML = "";
+        }
+        else{
+          document.getElementById('comboMeter').innerHTML = "Combo x" + combo;
+          document.getElementById('comboMeter').style.fontSize = `${10 * (1 + (combo/10))}px`;
+        }
     }
     else {
         return;
@@ -450,7 +523,7 @@ function comboChain() {
 
 function comboReset() {
     combo = 1;
-    document.getElementById('comboMeter').innerHTML = "x" + combo;
+    document.getElementById('comboMeter').innerHTML = "";
     document.getElementById('comboMeter').style.fontSize = '10px';
 }
 
