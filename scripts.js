@@ -17,6 +17,8 @@ const scoreSummary = document.querySelector("#score-summary");
 const highScoreHistory = document.querySelector("#highScore-history"); 
 const introPage = document.querySelector(`.intro-page`);
 const comboMeter = document.querySelector("#comboMeter");
+const mathFlickLogo =  document.querySelector("#MFIMG");
+const starBlitzText = document.querySelector("#starblitz");
 const viewportWidth = Math.max(document.documentElement.clientWidth || 0, window.innerWidth || 0);
 
 let gameState = "";
@@ -28,6 +30,7 @@ let combo = 0;
 let a;
 let b;
 let wrongEqArr = [];
+let wrongEqArrAns = [];
 
 let score = 0;
 let scoreMultiplier = 1;
@@ -59,17 +62,37 @@ let sfxGameEnd = new Audio(`./audio/sfx_menu_select4.wav`);
 let sfxBlitzRight = new Audio(`./audio/sfx_sounds_powerup18.wav`);
 let sfxStarBlitz = new Audio(`./audio/sfx_sounds_powerup2.wav`);
 let musicStarBlitz = new Audio(`./audio/15sec-2020-06-18_-_8_Bit_Retro_Funk_-_www.FesliyanStudios.com_David_Renda.mp3`);
+//volume control
+let historyVolume = 0.5;
+function getVolume(){
+  if(historyVolume===null){
+    historyVolume = localStorage.setItem('volume',0.5);
+  }
+  else{
+    historyVolume = localStorage.getItem('volume');
+  }
+}
+
+
+sfxRight.volume = historyVolume ;
+sfxWrong.volume = historyVolume ;
+sfxGameEnd.volume = historyVolume ;
+sfxNewGame.volume = historyVolume ;
+sfxStarBlitz.volume = historyVolume ;
+sfxBlitzRight.volume = historyVolume ;
+musicStarBlitz.volume = historyVolume ; 
 
 //load intro page on load. This should resolve the sound on browser. after loading the page.
 window.addEventListener(`load`, aboutUs); 
 
 function aboutUs() {
+  highScoreBox.disabled = true;
   flickboard.className = "flickboard-hidden";
   scoreSummary.className = "summary-hidden";
   comboMeter.className = "comboMeter-hidden";
   highScoreHistory.className = "highScoreHistory-hidden";
   introPage.className = "intro-page";
-  resetButton.textContent = "New Game";
+  resetButton.textContent = "";
   equationBox.style.animation = 'none';
   equationBox.offsetHeight; /* trigger reflow */
   equationBox.style.animation = null; 
@@ -83,6 +106,11 @@ function aboutUs() {
 
 //Present `hover to start` screen
 function preGame(){
+    highScoreBox.disabled = false;
+    starBlitzText.style.opacity = 0;
+    musicStarBlitz.pause();
+    musicStarBlitz.currentTime = 0;
+    mathFlickLogo.style.opacity = 1;
     introPage.className = "intro-page-hidden";
     solved = true;
     starBlitzState = false;
@@ -105,6 +133,7 @@ function preGame(){
     box6.removeEventListener(`mouseover`, box6Colors);
     box7.removeEventListener(`mouseover`, box7Colors);
     box8.removeEventListener(`mouseover`, box8Colors);
+
     equationBox.style.animation = 'rotationBackwards 60s infinite linear';
     flickboard.style.animation = 'rotation 60s infinite linear';
     for (let target of targets) {
@@ -122,7 +151,9 @@ function preGame(){
     timer.innerHTML = `Time: ` + gameTime;
 }
 
-resetButton.addEventListener(`click`, function() {
+
+
+function resetButt(){
   sfxNewGame.play();
   equationBox.style.animation = 'none';
   equationBox.offsetHeight; /* trigger reflow */
@@ -138,19 +169,21 @@ resetButton.addEventListener(`click`, function() {
     target.style.animation = null;
     target.style.animation = 'rotationBackwards 60s infinite linear';
   }
-  preGame();
   flickboard.className = "flickboard-display";
   comboMeter.className = "comboMeter-display";
   scoreSummary.className = "summary-hidden";
   highScoreHistory.className = "highScoreHistory-hidden";
   resetButton.textContent = "Reset Game";
-});
+  starBlitzState = false;
+  blitzEffects();
+  preGame();
+}
 
 //play the game, start countdown vvvv
 function playGame(){
   equationBox.removeEventListener(`mouseover`, playGame);
   equationBox.addEventListener("mouseout", alertRed);
-  gameTime = 15; //debugging
+  gameTime = 30; //debugging
   constantGameTime = gameTime;
   gameState = "playgame";
   assignColors();
@@ -174,7 +207,9 @@ function countdown(){
           musicStarBlitz.load();
           sfxStarBlitz.play();
           musicStarBlitz.play();
+          starBlitzText.style.opacity = 1;
           starBlitzState = true;
+          sbi = 0;
           starBlitz();
           blitzEffects();
           scoreboard.innerHTML = "Score: " + score + " x " + scoreMultiplier;
@@ -209,7 +244,7 @@ function countdown(){
 
             let wrongEqHeaderRow = document.createElement("tr");
             let wrongEqHeader = document.createElement("th");
-            wrongEqHeader.innerHTML = `Equations to review`;
+            wrongEqHeader.innerHTML = `Equations to review (click for answer)`;
             wrongEqHeaderRow.appendChild(wrongEqHeader);
             wrongEqSummary.appendChild(wrongEqHeaderRow);
 
@@ -219,6 +254,12 @@ function countdown(){
 
               let wrongEq = document.createElement("td");
               wrongEq.innerHTML = `${equation}`;
+              wrongEq.onclick = function() {
+                wrongEq.innerHTML = `${equation} = ${wrongEqArrAns[wrongEqArr.indexOf(equation)]}`
+              }
+              wrongEq.onmouseover = function() {
+                wrongEq.style.cursor = "pointer";
+              }
               row.appendChild(wrongEq);
 
               wrongEqSummary.appendChild(row);
@@ -246,17 +287,20 @@ function countdown(){
 //reset variables vvvv
 function reset(){
   score = 0;
+  scoreMultiplier = 1;
   round = 1;
   roundCheck = 0;
   combo = 0;
   numCorrect = 0;
   numWrong = 0;
   document.getElementById('comboMeter').innerHTML = "";  
+  
 
-  if (wrongEqArr.length !== 0) {
+  if (wrongEqSummary) {
     wrongEqSummary.remove();
   }
   wrongEqArr.splice(0, wrongEqArr.length);
+  wrongEqArrAns.splice(0, wrongEqArrAns.length);
 }
 
 //High score vvvv
@@ -318,18 +362,25 @@ function assignColors(){
 function box1Colors(){
   if (equation == targetArray[0]) {  
     box1.style.background = "green";
+    box1.innerText = ``;
+    if (starBlitzState){
+      box1.style.animation = `rotationBackwards 60s infinite linear, animatedTarget 3s linear infinite alternate, pulsate .5s ease-out`;
+    }
+    else{
+      box1.style.animation = `rotationBackwards 60s infinite linear, pulsate .5s ease-out`;
+    }
     addPoint();
     numCorrect++;
     equationBox.style.background = "rgba(0,225,0,0.2)";
     indicatorEq = setInterval(indicatorEquation, 500);
     return solved = true;
-    
   }
   else {
     box1.style.background = "red";
     minusPoint();
     numWrong++;
     wrongEqArr.push(`${a} + ${b}`);
+    wrongEqArrAns.push(a + b);
     comboReset();
     return solved = false; 
   }
@@ -338,6 +389,13 @@ function box1Colors(){
 function box2Colors(){
   if (equation == targetArray[1]) {  
     box2.style.background = "green";
+    box2.innerText = ``;
+    if (starBlitzState){
+      box2.style.animation = `rotationBackwards 60s infinite linear, animatedTarget 3s linear infinite alternate, pulsate .5s ease-out`;
+    }
+    else{
+      box2.style.animation = `rotationBackwards 60s infinite linear, pulsate .5s ease-out`;
+    }
     addPoint();
     numCorrect++;
     equationBox.style.background = "rgba(0,225,0,0.2)";
@@ -350,6 +408,7 @@ function box2Colors(){
     minusPoint();
     numWrong++;
     wrongEqArr.push(`${a} + ${b}`);
+    wrongEqArrAns.push(a + b);
     comboReset();
     return solved = false; 
   }
@@ -358,6 +417,13 @@ function box2Colors(){
 function box3Colors(){
   if (equation == targetArray[2]) {  
     box3.style.background = "green";
+    box3.innerText = ``;
+    if (starBlitzState){
+      box3.style.animation = `rotationBackwards 60s infinite linear, animatedTarget 3s linear infinite alternate, pulsate .5s ease-out`;
+    }
+    else{
+      box3.style.animation = `rotationBackwards 60s infinite linear, pulsate .5s ease-out`;
+    }
     addPoint();
     numCorrect++;
     equationBox.style.background = "rgba(0,225,0,0.2)";
@@ -367,8 +433,8 @@ function box3Colors(){
   else {
     box3.style.background = "red";
     minusPoint();
-    numWrong++;
     wrongEqArr.push(`${a} + ${b}`);
+    wrongEqArrAns.push(a + b);
     comboReset();
     return solved = false; 
   }
@@ -377,6 +443,13 @@ function box3Colors(){
 function box4Colors(){
   if (equation == targetArray[3]) {  
     box4.style.background = "green";
+    box4.innerText = ``;
+    if (starBlitzState){
+      box4.style.animation = `rotationBackwards 60s infinite linear, animatedTarget 3s linear infinite alternate, pulsate .5s ease-out`;
+    }
+    else{
+      box4.style.animation = `rotationBackwards 60s infinite linear, pulsate .5s ease-out`;
+    }
     addPoint();
     numCorrect++;
     equationBox.style.background = "rgba(0,225,0,0.2)";
@@ -388,6 +461,7 @@ function box4Colors(){
     minusPoint();
     numWrong++;
     wrongEqArr.push(`${a} + ${b}`);
+    wrongEqArrAns.push(a + b);
     comboReset();
     return solved = false; 
   }
@@ -396,6 +470,13 @@ function box4Colors(){
 function box5Colors(){
   if (equation == targetArray[4]) {  
     box5.style.background = "green";
+    box5.innerText = ``;
+    if (starBlitzState){
+      box5.style.animation = `rotationBackwards 60s infinite linear, animatedTarget 3s linear infinite alternate, pulsate .5s ease-out`;
+    }
+    else{
+      box5.style.animation = `rotationBackwards 60s infinite linear, pulsate .5s ease-out`;
+    }
     addPoint();
     numCorrect++;
     equationBox.style.background = "rgba(0,225,0,0.2)";
@@ -407,6 +488,7 @@ function box5Colors(){
     minusPoint();
     numWrong++;
     wrongEqArr.push(`${a} + ${b}`);
+    wrongEqArrAns.push(a + b);
     comboReset();
     return solved = false; 
   }
@@ -415,6 +497,13 @@ function box5Colors(){
 function box6Colors(){
   if (equation == targetArray[5]) {  
     box6.style.background = "green";
+    box6.innerText = ``;
+    if (starBlitzState){
+      box6.style.animation = `rotationBackwards 60s infinite linear, animatedTarget 3s linear infinite alternate, pulsate .5s ease-out`;
+    }
+    else{
+      box6.style.animation = `rotationBackwards 60s infinite linear, pulsate .5s ease-out`;
+    }
     addPoint();
     numCorrect++;
     equationBox.style.background = "rgba(0,225,0,0.2)";
@@ -426,6 +515,7 @@ function box6Colors(){
     minusPoint();
     numWrong++;
     wrongEqArr.push(`${a} + ${b}`);
+    wrongEqArrAns.push(a + b);
     comboReset();
     return solved = false; 
   }
@@ -434,6 +524,13 @@ function box6Colors(){
 function box7Colors(){
   if (equation == targetArray[6]) {  
     box7.style.background = "green";
+    box7.innerText = ``;
+    if (starBlitzState){
+      box7.style.animation = `rotationBackwards 60s infinite linear, animatedTarget 3s linear infinite alternate, pulsate .5s ease-out`;
+    }
+    else{
+      box7.style.animation = `rotationBackwards 60s infinite linear, pulsate .5s ease-out`;
+    }
     addPoint();
     numCorrect++;
     equationBox.style.background = "rgba(0,225,0,0.2)";
@@ -445,6 +542,7 @@ function box7Colors(){
     minusPoint();
     numWrong++;
     wrongEqArr.push(`${a} + ${b}`);
+    wrongEqArrAns.push(a + b);
     comboReset();
     return solved = false; 
   }
@@ -453,6 +551,13 @@ function box7Colors(){
 function box8Colors(){
   if (equation == targetArray[7]) {  
     box8.style.background = "green";
+    box8.innerText = ``;
+    if (starBlitzState){
+      box8.style.animation = `rotationBackwards 60s infinite linear, animatedTarget 3s linear infinite alternate, pulsate .5s ease-out`;
+    }
+    else{
+      box8.style.animation = `rotationBackwards 60s infinite linear, pulsate .5s ease-out`;
+    }
     addPoint();
     numCorrect++;
     equationBox.style.background = "rgba(0,225,0,0.2)";
@@ -464,6 +569,7 @@ function box8Colors(){
     minusPoint();
     numWrong++;
     wrongEqArr.push( `${a} + ${b}`);
+    wrongEqArrAns.push(a + b);
     comboReset();
     return solved = false; 
   }
@@ -525,6 +631,16 @@ function box8Mouseout(){
 //equation event listener. It will generate a new equation and array of numbers.
 //It will then add the correct answer in the array.
 equationBox.addEventListener("mouseover", function() {
+  if(starBlitzState){
+    for (let target of targets) {
+      target.style.animation = 'rotationBackwards 60s infinite linear, animatedTarget 3s linear infinite alternate';
+    }
+  }
+  else{
+    for (let target of targets) {
+      target.style.animation = 'rotationBackwards 60s infinite linear';
+    }
+  }
 
 let randomNumber= 1;
 let randomBoxNumber = "";
@@ -711,7 +827,7 @@ function randomColor(){
         return "#"+arrColors[Math.floor((Math.random()*3))];
 }
         
-var arrStars = [];
+let arrStars = [];
 for(i = 0; i < 100; i++){
     let randX = Math.floor((Math.random()*C_WIDTH)+1);
     let randY = Math.floor((Math.random()*C_HEIGHT)+1);
@@ -759,29 +875,103 @@ function blitzEffects(){
     scoreboard.className = `score`;
     resetButton.className = `resetButton`;
     highScoreBox.className = `highScore`;
+    comboMeter.className = "comboMeter-display";
     return;
   }
 }
  //Star Blitz text 
  
   let sbi = 0;
-  let sbtxt = "STAR BLITZ"
-  let sbspeed = 30;
+  let sbtxt = "STAR BLITZ";
+  let sbspeed = 50;
  
 function starBlitz() {
-  
+  mathFlickLogo.style.opacity = 0;
+
   if (sbi < sbtxt.length) {
-    document.getElementById("starblitz").innerHTML += sbtxt.charAt(sbi);
+    starBlitzText.innerHTML += sbtxt.charAt(sbi);
     sbi++;
     setTimeout(starBlitz, sbspeed);
   }
   else {
-    setTimeout(resetText, 3000);
-
+    
+    setTimeout(resetText, 10000);
+    
   }
 
 }
 
 function resetText (){
-  document.getElementById("starblitz").innerHTML ="";
+  starBlitzText.innerHTML ="";
+  mathFlickLogo.style.opacity = 1;
 }
+
+
+function SetVolume(val)
+    {   
+      
+      
+
+        sfxRight.volume = val / 100;
+        sfxWrong.volume = val / 100;
+        sfxGameEnd.volume = val / 100;
+        sfxNewGame.volume = val / 100;
+        sfxStarBlitz.volume = val / 100;
+        sfxBlitzRight.volume = val / 100;
+        musicStarBlitz.volume = val / 100; 
+
+        
+        
+        historyVolume = localStorage.setItem('volume',val/100);
+        
+    }
+
+const indicatorRight = document.querySelector("#indicator-right");
+const indicatorLeft = document.querySelector("#indicator-left");
+const start = document.querySelector("#start");
+const end = document.querySelector("#end");
+let tutorialStage1 = true;
+let tutorialStage2 = false;
+let tutorialComplete = false;
+
+
+function tutorial() {
+    if (tutorialStage1 == true){
+      indicatorRight.style.opacity = "1";
+      start.innerHTML = "2 + 2";
+      tutorialStage1 = false;
+      
+      end.addEventListener(`mouseover`,tutorialP2);
+    }
+    else if (tutorialStage2 == true){
+      start.innerHTML = `<img src="images/outline_done_white_24dp.png">`;
+      start.style.lineHeight="180px";
+      start.style.backgroundColor = "green";
+      end.innerHTML = `<img src="images/outline_done_white_24dp.png">`;
+      end.style.lineHeight="180px";
+      end.style.backgroundColor = "green";
+      indicatorLeft.style.opacity = "0"
+      tutorialComplete = true;
+      resetButton.addEventListener(`click`, resetButt);
+      resetButton.textContent = "New Game";
+      document.getElementById("tutorial-last").innerHTML = "Click New Game to play!"
+    }
+
+    
+    
+    
+}
+
+function tutorialP2() {
+    if (tutorialComplete == false){
+      indicatorRight.style.opacity = "0";
+      indicatorLeft.style.opacity = "1";
+      tutorialStage2 = true;
+    }
+    else {
+      return;
+    }
+  
+}
+
+start.addEventListener(`mouseover`,tutorial);

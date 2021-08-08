@@ -25,7 +25,7 @@
         <div id="score" class = "score">Score</div>
         <div id="timer" class = "timer">Timer</div>
         <div id="starblitz"></div>
-        <div id="score-summary">
+        <div id="score-summary" class="summary-hidden">
             <h3 class="score-header">Game Over!</h3>
             <table id="summary-table">
                 <tr>
@@ -50,16 +50,40 @@
             <h2><u>Instructions</u></h2>
             <p>You are our top space cadet.</p>
             <p>Collect star energy by solving the equation and finding the correct star.</p>
-            <p>Return your mouse back to home to get a new equation.</p>
+            <p>Return your mouse back to home to get a new assignment.</p>
             <p>Collect the most star energy within the time limit and defend your high score.</p>
             <p>Good luck!</p>
-
-            <br><br>
-            <h2><strong><u>Click New Game to play!</u></strong></h2>
+            <br>
+            <div id="tutorial">
+                <div id="start">Hover here</div>
+                <div id="indicator-right">
+                    <img id="indicator-1" src="images/outline_arrow_forward_ios_white_24dp.png">
+                    <img id="indicator-2" src="images/outline_arrow_forward_ios_white_24dp.png">
+                    <img id="indicator-3" src="images/outline_arrow_forward_ios_white_24dp.png">
+                    <img id="indicator-4" src="images/outline_arrow_forward_ios_white_24dp.png">
+                    <img id="indicator-5" src="images/outline_arrow_forward_ios_white_24dp.png">
+                    <img id="indicator-6" src="images/outline_arrow_forward_ios_white_24dp.png">
+                    <img id="indicator-7" src="images/outline_arrow_forward_ios_white_24dp.png">
+                    <img id="indicator-8" src="images/outline_arrow_forward_ios_white_24dp.png">    
+                </div>
+                <div id="indicator-left">
+                    <img id="indicator-L1" src="images/outline_arrow_back_ios_new_white_24dp.png">
+                    <img id="indicator-L2" src="images/outline_arrow_back_ios_new_white_24dp.png">
+                    <img id="indicator-L3" src="images/outline_arrow_back_ios_new_white_24dp.png">
+                    <img id="indicator-L4" src="images/outline_arrow_back_ios_new_white_24dp.png">
+                    <img id="indicator-L5" src="images/outline_arrow_back_ios_new_white_24dp.png">
+                    <img id="indicator-L6" src="images/outline_arrow_back_ios_new_white_24dp.png">
+                    <img id="indicator-L7" src="images/outline_arrow_back_ios_new_white_24dp.png">
+                    <img id="indicator-L8" src="images/outline_arrow_back_ios_new_white_24dp.png">    
+                </div>
+                <div id="end">4</div>
+            </div>
+            <h2 id="tutorial-last"><strong><u></u></strong></h2>
         </div>
+        
         <div id="highScore-history" class="highScoreHistory-hidden"></div>
         <div id="resetButton" class = "resetButton">Reset Game</div>
-        <div id="highScore" class = "highScore">High Score</div>
+        <button id="highScore" class = "highScore">High Score</button>
         <div id="comboMeter" class="comboMeter-hidden"></div>
         <div id="flickboard" class="flickboard-hidden">
             <div id="box8" class="target">box8</div>
@@ -88,9 +112,14 @@
             </div>
         </div>
     </div>
-
     <footer>
+        <img id="vol-img" src="images/outline_volume_up_white_24dp.png">
+        <input id="vol-control" type="range" min="0" max="100" step="1" autocomplete="off" oninput="SetVolume(this.value)" onchange="SetVolume(this.value)"></input>
+    </footer>
+    <footer>
+        
         <div id="team-links">
+            <span>
             <a href="https://github.com/TYLPHE" target="blank">
                 <img src="./images/GitHub-Mark-Light-64px.png">
                 <p id="Tyler">T</p>
@@ -103,7 +132,7 @@
                 <img src="./images/GitHub-Mark-Light-64px.png">
                 <p id="Tri">T</p>
             </a>
-            
+            </span>
         </div>
         
     </footer>

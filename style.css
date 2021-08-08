@@ -77,7 +77,9 @@ a:hover {
 
 #MFIMG{
     width:250px;
+    opacity: 1;
 }
+
 
 #score{
     grid-area: score;
@@ -186,6 +188,8 @@ a:hover {
 }
 
 #highScore{
+    color: white;
+    font-family: 'Ubuntu', sans-serif;
     grid-area: highscore;
     margin: 3% 0 0 auto;
     width:70%;
@@ -297,7 +301,7 @@ a:hover {
     justify-content: center;
     align-items: center;
     border: 3px solid #A956A2;
-    /* animation: rotationBackwards 60s infinite linear; */
+    animation: rotationBackwards 60s infinite linear;
     text-shadow: 0 0 6px black, 0 0 6px black, 0 0 6px black;
     width: 200px;
     height: 200px;
@@ -393,6 +397,14 @@ footer{
     right:20px;
 }
 
+#vol-img {
+    position:relative;
+    bottom: 70px;
+}
+#vol-control {
+    position:relative;
+    bottom: 82px;
+}
 #team-links a{
 text-decoration: none;
 }
@@ -556,9 +568,172 @@ text-decoration: none;
     100% {background-color: #ff0000}
 }
 
+@keyframes animatedStarBlitz {
+    0% {color: #fbff00; transform: scale(1);}
+    10% {color: #e8ff00; transform: scale(1.25);}
+    20% {color: #5dff00; transform: scale(1.4);}
+    30% {color: #00ff2e; transform: scale(1.25);}
+    40% {color: #00ffb9; transform: scale(1);}
+    50% {color: #00b9ff; transform: scale(1.25);}
+    60% {color: #2d54ff; transform: scale(1.4);}
+    70% {color: #7525ff; transform: scale(1.25);}
+    80% {color: #e800ff; transform: scale(1);}
+    90% {color: #ff008b; transform: scale(1.25);}
+    100% {color: #ff0000; transform: scale(1.4);}
+}
 #starblitz {
+    transform: scale(1);
     position:absolute;
+    left: 50%;
+    margin-left: -210px;
     z-index: -2;
     font-size:5rem;
-    animation: animatedText 3s linear infinite alternate;
+    animation: animatedStarBlitz 3s linear infinite alternate;
+    -webkit-text-stroke: 4px white;
+    text-shadow: 
+    0px 0px 20px #ff8800,
+    0px 0px 10px #e7eb0f;
 }
+
+
+@keyframes pulsate {
+    0% {
+      transform: scale(0.1, 0.1);
+      background-color:green;
+      opacity: 0.0;
+    }
+    50% {
+      opacity: 1.0;
+      background-color:green;
+    }
+    100% {
+      transform: scale(1.3, 1.3);
+      opacity: 0.0;
+      background-color:green;
+    }
+  }
+
+  @keyframes incorrect {
+    0% {
+      background-color:red;
+    }
+
+    100% {
+      background-color:red;
+    }
+  }
+
+  @keyframes indicator {
+      0% {
+          opacity:100%;
+      }
+      100% {
+          opacity:0%;
+      }
+  }
+#tutorial {
+    display:inline-block;
+    /* background-color: blue; */
+    
+}
+
+#start {
+    display:inline-block;
+    text-align: center;
+    line-height:150px;
+    font-size:20px;
+    bottom: 515px;
+    width:150px;
+    height:150px;
+    border-radius: 50%;
+    border:3px solid white;
+    z-index: 1;
+
+}
+
+#start:hover{
+    background-color:green;
+}
+#end:hover{
+    background-color:green;
+}
+
+#end {
+    display:inline-block;
+    text-align: center;
+    line-height:150px;
+    font-size:20px;
+    
+    bottom: 515px;
+    width:150px;
+    height:150px;
+    border-radius: 50%;
+    border:3px solid white;
+}
+
+#indicator-right{
+    opacity:0;
+    /* background-color: red; */
+    display:inline-block;
+    transform:translateY(18px);
+    
+}
+#indicator-left{
+    display:block;
+    /* background-color: blue; */
+    position:absolute;
+    opacity:0;
+    margin-left:162px;
+    top:849px;
+    
+}
+#indicator-1 {
+    animation: indicator 1.5s linear 0s infinite;
+}
+#indicator-2 {
+    animation: indicator 1.5s linear 0.2s infinite;
+}
+#indicator-3 {
+    animation: indicator 1.5s linear 0.4s infinite; 
+}
+#indicator-4 {
+    animation: indicator 1.5s linear 0.6s infinite;  
+}
+#indicator-5 {
+    animation: indicator 1.5s linear 0.8s infinite;  
+}
+#indicator-6 {
+    animation: indicator 1.5s linear 1s infinite;  
+}
+#indicator-7 {
+    animation: indicator 1.5s linear 1.2s infinite;  
+}
+#indicator-8 {
+    animation: indicator 1.5s linear 1.4s infinite;  
+}
+
+#indicator-L1 {
+    animation: indicator 1.5s linear 1.4s infinite;
+}
+#indicator-L2 {
+    animation: indicator 1.5s linear 1.2s infinite;
+}
+#indicator-L3 {
+    animation: indicator 1.5s linear 1s infinite; 
+}
+#indicator-L4 {
+    animation: indicator 1.5s linear 0.8s infinite;  
+}
+#indicator-L5 {
+    animation: indicator 1.5s linear 0.6s infinite;  
+}
+#indicator-L6 {
+    animation: indicator 1.5s linear 0.4s infinite;  
+}
+#indicator-L7 {
+    animation: indicator 1.5s linear 0.2s infinite;  
+}
+#indicator-L8 {
+    animation: indicator 1.5s linear 0s infinite;  
+}
+
